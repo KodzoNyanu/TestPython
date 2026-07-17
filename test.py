@@ -97,24 +97,48 @@ app = Flask(__name__)
 # print("Fin du programme")
 
 def calculer_mention():
-    # On récupère la note passée dans l'URL (ex: /?note=14). Si rien n'est mis, on prend 10 par défaut.
-    try:
-        note = int(request.args.get('note', 10))
-    except ValueError:
-        return "Veuillez entrer un nombre entier valide pour la note. Exemple : /?note=14"
+    # 1. On crée le formulaire de saisie en HTML
+    html_formulaire = """
+    <h1>Calculateur de Mention</h1>
+    <form method="GET" action="/">
+        <label for="note">Entrez votre note (sur 20) :</label>
+        <input type="number" id="note" name="note" min="0" max="20" required>
+        <button type="submit">Valider</button>
+    </form>
+    """
 
-    # Ton code de logique pour la mention
-    if note >= 14:
-        mention = "Bien"
-    elif note >= 12:
-        mention = "Assez bien"
-    elif note >= 10:
-        mention = "Passable"
-    else:
-        mention = "Insuffisant"
+    # 2. On regarde si l'utilisateur a validé et envoyé une note
+    note_saisie = request.args.get('note')
 
-    # On affiche le résultat proprement sur la page web
-    return f"<h1>Résultat</h1><p>Vous avez eu {note}/20 !</p><p>Votre mention est : <strong>{mention}</strong></p>"
+    if note_saisie is not None:
+        try:
+            note = int(note_saisie)
+            
+            # Ta logique pour la mention
+            if note >= 14:
+                mention = "Bien"
+            elif note >= 12:
+                mention = "Assez bien"
+            elif note >= 10:
+                mention = "Passable"
+            else:
+                mention = "Insuffisant"
+
+            # On ajoute le résultat sous le formulaire
+            html_resultat = f"""
+            <hr>
+            <h3>Résultat :</h3>
+            <p>Vous avez eu {note}/20 !</p>
+            <p>Votre mention est : <strong>{mention}</strong></p>
+            """
+            return html_formulaire + html_resultat
+
+        except ValueError:
+            html_erreur = "<p style='color:red;'>Veuillez entrer un nombre entier valide.</p>"
+            return html_formulaire + html_erreur
+
+    # Si aucune note n'a encore été saisie, on affiche juste le formulaire vide
+    return html_formulaire
 
 if __name__ == '__main__':
     app.run(debug=True)
