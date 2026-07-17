@@ -4,6 +4,41 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
+
+def mention_pour_note(note):
+    """Barème des mentions pour une note sur 20."""
+    if note == 20:
+        return "Excellent"
+    elif note >= 16:
+        return "Très bien"
+    elif note >= 14:
+        return "Bien"
+    elif note >= 12:
+        return "Assez bien"
+    elif note >= 10:
+        return "Passable"
+    else:
+        return "Insuffisant"
+
+
+@app.route('/api/mention')
+def api_mention():
+    """Endpoint JSON utilisé par l'intégration Moodle/Odoo (flux notes & mentions).
+
+    Exemple : GET /api/mention?note=14.5 -> {"note": 14.5, "sur": 20, "mention": "Bien"}
+    """
+    note_saisie = request.args.get('note')
+    if note_saisie is None:
+        return jsonify({"erreur": "Paramètre 'note' manquant."}), 400
+    try:
+        note = float(note_saisie)
+    except ValueError:
+        return jsonify({"erreur": "La note doit être un nombre."}), 400
+    if not 0 <= note <= 20:
+        return jsonify({"erreur": "La note doit être comprise entre 0 et 20."}), 400
+    return jsonify({"note": note, "sur": 20, "mention": mention_pour_note(note)})
+
+
 @app.route('/')
 # n1=1
 # n2=2.3
@@ -113,20 +148,7 @@ def calculer_mention():
     if note_saisie is not None:
         try:
             note = int(note_saisie)
-            
-            # Ta logique pour la mention
-            if note == 20:
-                mention = "Excellent"
-            elif note >= 16:
-                mention = "Très bien"    
-            elif note >= 14:
-                mention = "Bien"
-            elif note >= 12:
-                mention = "Assez bien"
-            elif note >= 10:
-                mention = "Passable"
-            else:
-                mention = "Insuffisant"
+            mention = mention_pour_note(note)
 
             # On ajoute le résultat sous le formulaire
             html_resultat = f"""
