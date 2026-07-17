@@ -1,6 +1,10 @@
 from modulefinder import test
 
+from flask import Flask, request, jsonify
 
+app = Flask(__name__)
+
+@app.route('/')
 # n1=1
 # n2=2.3
 # n3=3
@@ -92,15 +96,25 @@ from modulefinder import test
 # print(f"Vous avez {age} ans !")
 # print("Fin du programme")
 
-note = int(input("Quelle note as-tu eu ? " "\n"))
-print(f"Vous avez eu {note} sur 20 !")
+def calculer_mention():
+    # On récupère la note passée dans l'URL (ex: /?note=14). Si rien n'est mis, on prend 10 par défaut.
+    try:
+        note = int(request.args.get('note', 10))
+    except ValueError:
+        return "Veuillez entrer un nombre entier valide pour la note. Exemple : /?note=14"
 
-if note >= 14:
-    mention = "Bien"
-elif note >= 12:
-    mention = "Assez bien"
-elif note >= 10:
-    mention = "Passable"
-else:
-    mention = "Insuffisant"
-print(f"Votre mention est : {mention}")
+    # Ton code de logique pour la mention
+    if note >= 14:
+        mention = "Bien"
+    elif note >= 12:
+        mention = "Assez bien"
+    elif note >= 10:
+        mention = "Passable"
+    else:
+        mention = "Insuffisant"
+
+    # On affiche le résultat proprement sur la page web
+    return f"<h1>Résultat</h1><p>Vous avez eu {note}/20 !</p><p>Votre mention est : <strong>{mention}</strong></p>"
+
+if __name__ == '__main__':
+    app.run(debug=True)
