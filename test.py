@@ -115,7 +115,11 @@ def calculer_mention():
             note = int(note_saisie)
             
             # Ta logique pour la mention
-            if note >= 14:
+            if note == 20:
+                mention = "Excellent"
+            elif note >= 16:
+                mention = "Très bien"    
+            elif note >= 14:
                 mention = "Bien"
             elif note >= 12:
                 mention = "Assez bien"
